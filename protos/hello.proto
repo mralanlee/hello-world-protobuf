@@ -3,7 +3,7 @@ package messages;
 
 service Greeter {
   // Sends a greeting
-  rpc SayHelloWorld (Greeting) returns (Hello) {}
+  rpc HelloWorld (Greeting) returns (Hello) {}
 }
 
 message Greeting {
