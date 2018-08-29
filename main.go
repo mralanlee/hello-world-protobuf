@@ -1,29 +1,35 @@
 package main
 
 import (
-	"io"
+	"context"
 	"log"
-	"net/http"
-	"time"
+	"net"
 
-	pb "github.com/mralanlee/hello-world-protobuf/messages"
+	pb "github.com/mralanlee/hello-world-protobuf/protos"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
-func myHandler(w http.ResponseWriter, req *http.Request) {
-	hello := pb.Hello{
-		World: "World",
-	}
-	io.WriteString(w, hello.World)
+const (
+	port = ":50051"
+)
+
+type server struct{}
+
+func (s *server) HelloWorld(ctx context.Context, in *pb.Greeting) (*pb.Hello, error) {
+	return &pb.Hello{Message: "Hello World!"}, nil
 }
 
 func main() {
 	// Create Server
-	s := &http.Server{
-		Addr:           ":8080",
-		Handler:        http.HandlerFunc(myHandler),
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
+	lis, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
 	}
-	log.Fatal(s.ListenAndServe())
+	s := grpc.NewServer()
+	pb.RegisterGreeterServer(s, &server{})
+	reflection.Register(s)
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
