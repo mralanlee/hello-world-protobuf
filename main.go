@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
@@ -22,6 +23,7 @@ func (s *server) HelloWorld(ctx context.Context, in *pb.Greeting) (*pb.Hello, er
 
 func main() {
 	// Create Server
+	fmt.Printf("Listening on port %s", port)
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
